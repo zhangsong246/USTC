@@ -1,0 +1,29 @@
+    @Override
+    public ResultDTO<Long> addOrder(DocOrderCreateDTO order) {
+        ResultDTO<Long> result = new ResultDTO<Long>();
+        if (!DocValidation.checkCreateDocOrderDO(result, order)) {
+            return result;
+        }
+
+        RpcCallInfo call = getCallInfo("NBOrderService#addOrder");
+        if (logger.isInfoEnabled()) {
+            logger.info("IN@NBOrderService.addOrder,order={}, callInfo={}", new Object[]{order, call});
+        }
+
+        try {
+            return orderManager.addOrder(order, call);
+        } catch (LogisticsException e) {
+            logger.error("error@NBOrderService.addOrder,order={}", new Object[]{order, e});
+            throw e;
+        } catch (Exception e) {
+            logger.error("error@NBOrderService.addOrder,order={}", new Object[]{order, e});
+            DocValidation.setFaildResult(result, ServiceErrorCodeEnum.S02);
+        }
+
+        if (logger.isInfoEnabled()) {
+            logger.info("success@NBOrderService.addOrder, result={}", new Object[]{result});
+        }
+
+        return result;
+    }
+

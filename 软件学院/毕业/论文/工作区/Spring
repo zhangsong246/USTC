@@ -1,0 +1,11 @@
+Spring框架提供了对于当前基于Java的企业级应用的完整支持，Spring一个关键在于它在应用层级的框架性支持，Spring集中于企业级应用的集成使用，使得开发限制在特定的部署环境，而是关注应用层的逻辑即可。Spring使得应用开发只需要面向"plain old Java objects" (POJOs) ，从而适应了Java SE编程模型和，以及完全或部分的J2EE应用。
+对于应用的开发，Spring的优势在于：
+＊使Java方法能够直接运行在数据库的事务中，而不需要使用数据库事务API进行编程
+＊使本地Java方法成为远程过程，而不需要使用远程API对程序进行编程
+＊
+Spring的特色：
+＊依赖注入
+＊面向切面编程，包括声明性的事务管理
+＊Spring MVC web应用支持，和RESTful web应用框架
+＊对JDBC, JPA, JMS的基础性支持
+

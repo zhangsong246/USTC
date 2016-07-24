@@ -1,0 +1,72 @@
+    @Override
+    public void dispatchOrder(long userId, long orderId) {
+        // 查询订单的信息
+        OrderDO orderDO = nbOrderQueryHelper.queryOrderDOByUserOrderId(userId, orderId);
+        // 判断订单是否可派送
+        boolean isDispatch = checkOrderCanDispatch(orderDO);
+        if (!isDispatch) {
+            logger.error("OrderDispatchManagerImpl.dispatchOrder checkOrderCanDispatch:" + isDispatch + " userId:" + userId + " orderId:" + orderId);
+            return;
+        }
+
+        DispatchDO dispatchDO = dispatchDOHelper.convertOrderDOToDispatchDO(orderDO);
+        
+        //延迟5秒下发
+        createTimingDispatchTask(orderDO, DateUtils.addSeconds(new Date(),5));
+        return;
+
+        // 根据发件人地址查询附近的小件员
+        NearbyCourierResponse result = nearbyCourierService.getNearbyCouriers(dispatchDO.getSendDetailAddress(), dispatchDO.getPoi(), dispatchDO.getSenderLongitudeD(), dispatchDO.getSenderLatitudeD());
+        if (!result.isSuccess()) {
+            logger.error("nearbyCourierService fail!, sendAddress:" + dispatchDO.getSendDetailAddress()
+                    + " poi:" + dispatchDO.getPoi() + " LongitudeD: " + dispatchDO.getSenderLongitudeD()
+                    + " LatitudeD:" + dispatchDO.getSenderLatitudeD() + " errorMsg:" + result.getErrorMsg()
+                    + " orderId: " + orderId + " userId:" + userId);
+        }
+        
+
+
+        // 派送列表
+        List<Long> dispatchList = new ArrayList<Long>();
+
+        // 消息
+        List<JSONObject> messages = new ArrayList<JSONObject>();
+
+        String message = sendAccsMsgToUser(orderId, userId, facilitatorName, MsgContentConstants.SERVER_TYPE_FACILITATOR, 0);
+        messages.add(JSON.parseObject(message));
+        dispatchUsers.add(facilitatorName);
+        dispatchList.add(facilitatorsDTO.getId());
+                    
+
+        if(messages != null && !messages.isEmpty()){
+            JSONArray array = new JSONArray(messages.size());
+            for(int i=0,size=messages.size();i<size;i++){
+                array.add(messages.get(i));
+            }
+            cachedMessageManager.putMessageByOrderId(orderId,MsgTypeConstants.C_ORDER_DIAPATCHER,array.toJSONString());
+        }
+
+        if (dispatchList.size() > 0) {
+
+            List<Long> levelOne = new ArrayList<Long>(); // 第一批派送
+            List<Long> levelTwo = new ArrayList<Long>();// 第二批派送
+
+            // 进行分级别派送
+            for (Long dispatchId : dispatchList) {
+                // 判断是否要分批派单
+                if (awaitTimeConfig.isAwait()) {
+                    createDispatchOrderTask(userId, dispatchId, dispatchDO);
+                } else {
+                    dispatchOrderToUser(userId, dispatchId, dispatchDO);
+                }
+            } 
+            
+            // 启动定时检查任务,检查是否没人抢单
+            createCheckOrderDeliveryTask(userId, dispatchDO);
+
+            // 启动超时判断任务，检查订单是否超时，超时通知SDK
+            createCheckOrderTimeoutTask(orderId, userId);
+
+        } 
+
+    }
