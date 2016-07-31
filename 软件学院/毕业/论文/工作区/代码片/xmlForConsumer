@@ -1,0 +1,16 @@
+<bean name="clientSenderService" class="com.taobao.hsf.app.spring.util.HSFSpringConsumerBean" init-method="init">  
+     <property name="interfaceName" value="com.company.service.core.SenderService" />  
+     <property name="version" value="1.0.0" />  
+</bean>
+
+<dependency>  
+   <groupId>com.taobao.hsf</groupId>  
+   <artifactId>hsf.connector.spring</artifactId>  
+   <version>2.3.1</version>  
+</dependency>   
+
+<dependency>  
+   <groupId>com.company.service</groupId>  
+   <artifactId>service-sender</artifactId>  
+   <version>1.0.0</version>  
+</dependency>   

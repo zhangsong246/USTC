@@ -1,0 +1,29 @@
+<bean id="senderServiceImpl" class="com.company.service.core.SenderServiceImpl" />  
+<bean id="senderServiceProvider"     class="com.taobao.hsf.app.spring.util.HSFSpringProviderBean" init-method="init">  
+     <property name="serviceInterface">  
+        <value>com.company.service.core.SenderService</value>  
+     </property>  
+     <property name="target">  
+        <ref bean="com.company.service.core.SenderServiceImpl" />  
+     </property>  
+     <property name="serviceName">  
+        <value>com.company.service.core.SenderService</value>  
+     </property>  
+     <property name="serviceVersion">  
+        <value>1.0.0</value>  
+     </property>  
+     <property name="serviceGroup">  
+        <value>HSF</value>  
+     </property>  
+</bean>
+
+
+<project>
+  <parent>
+    <groupId>com.company.service</groupId>
+    <artifactId>sender-service</artifactId>
+    <version>1.0.0</version>
+  </parent>
+  <modelVersion>1.0.0</modelVersion>
+  <artifactId>core</artifactId>
+</project>  

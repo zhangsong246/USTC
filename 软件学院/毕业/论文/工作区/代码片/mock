@@ -1,0 +1,3 @@
+AddressService addressService = Mockito.mock(AddressService.class);
+AddressInfo poiInfo = new AddressInfo("prov,city,district,town,street", "1001");
+PowerMockito.when(POIUtil.queryPOI(Mockito.anyLong(), Mockito.anyLong())).thenReturn(poiInfo);
